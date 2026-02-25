@@ -38,8 +38,8 @@ function englishScore(text) {
 document.getElementById('decodeBtn').onclick = function() {
     const input = document.getElementById('inputText').value;
     const results = caesarAllDecodes(input);
-    // 全シフト値の復号結果をすべて出力
-    const output = results.map(r => `[Shift ${r.shift}]\n${r.decoded}`).join('\n\n');
+    // [Shift n]のあとに改行を入れず、1行で出力
+    const output = results.map(r => `[Shift ${r.shift}] ${r.decoded}`).join('\n\n');
     document.getElementById('outputText').value = output;
     document.getElementById('outputChars').textContent = `${output.length} CHARS`;
 };

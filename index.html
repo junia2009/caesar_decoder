@@ -1,55 +1,258 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caesar Decoder</title>
+    <title>CAESAR DECODER</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="rsa-frame">
-        <div class="rsa-header">
-            <span class="sys-ok">SYS.OK</span>
-            <span class="rsa-title">CAESAR DECODER</span>
-            <span class="rsa-version">v1.0.0</span>
-        </div>
-        <div class="rsa-circle"><div class="circle-inner"></div></div>
-        <div class="rsa-subtitle">PUBLIC KEY CRYPTOGRAPHY INTERFACE</div>
-        <div class="rsa-status-row">
-            <span class="rsa-status-dot"></span>
-            <span class="rsa-status">SYSTEM ONLINE</span>
-            <span class="rsa-clock" id="statusTime"></span>
-        </div>
-        <div class="rsa-section">
-            <div class="rsa-label">INPUT STREAM</div>
-            <textarea id="inputText" rows="4" placeholder="// 復号したいシーザー暗号文を入力..." class="rsa-textarea"></textarea>
-            <div class="rsa-btn-row">
-                <button id="decodeBtn" class="rsa-btn">DECRYPT</button>
-                <button id="clearBtn" class="rsa-btn">CLEAR</button>
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="hud-frame">
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+
+            <!-- HUD top deco -->
+            <div class="hud-deco-top">
+                <span>SYS.OK</span>
+                <span>Caesar Decoder</span>
+                <span>v2.0.0</span>
             </div>
-        </div>
-        <div class="rsa-section">
-            <div class="rsa-label">OUTPUT STREAM</div>
-            <textarea id="outputText" rows="7" readonly title="復号結果" placeholder="// 全シフト値の復号結果がここに表示されます" class="rsa-textarea"></textarea>
-            <div class="rsa-btn-row">
-                <button id="copyBtn" class="rsa-btn rsa-btn-yellow">COPY</button>
+
+            <!-- Processing overlay -->
+            <div class="processing-overlay" id="processingOverlay">
+                <div class="processing-ring"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="header">
+                <div class="header-line">
+                    <span class="deco"></span>
+                    <div class="arc-reactor"></div>
+                    <span class="deco"></span>
+                </div>
+                <h1>CAESAR DECODER</h1>
+                <div class="subtitle">Shift Cipher Brute-force Interface</div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span><span class="status-dot"></span>SYSTEM ONLINE</span>
+                <span class="time" id="clock">00:00:00</span>
+            </div>
+
+
+            <!-- Input -->
+            <div class="crypto-section">
+                <label for="inputText"><span class="bracket">[</span> INPUT STREAM <span class="bracket">]</span></label>
+                <textarea id="inputText" class="crypto-textarea" placeholder="// 復号したいシーザー暗号文を入力..." spellcheck="false"></textarea>
+                <div class="byte-counter">
+                    <span id="inputLen">0 CHARS</span>
+                    <span>CTRL+ENTER → DECRYPT</span>
+                </div>
+            </div>
+
+            <!-- Swap -->
+            <div class="swap-row">
+                <button class="btn-swap center" id="swapBtn" title="入力と出力を入れ替え">⇅</button>
+            </div>
+
+            <!-- Output -->
+            <div class="crypto-section">
+                <label for="outputText"><span class="bracket">[</span> OUTPUT STREAM <span class="bracket">]</span></label>
+                <div class="output-wrapper">
+                                        <div class="output-flex">
+                                            <textarea id="outputText" class="crypto-textarea" readonly placeholder="// 全シフト値の復号結果がここに表示されます..." spellcheck="false"></textarea>
+                                            <button class="btn-copy mini" id="copyBtn">COPY</button>
+                                        </div>
+                </div>
+                <div class="byte-counter">
+                    <span id="outputLen">0 CHARS</span>
+                    <span id="processTime"></span>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="error" id="error"></div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <button class="btn btn-decode smart" id="decodeBtn">DECRYPT</button>
+                <button class="btn btn-clear smart" id="clearBtn">CLEAR</button>
+            </div>
+
+            <!-- Bottom deco -->
+            <div class="hud-deco-bottom">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
             </div>
         </div>
     </div>
+
+    <!-- スキャンライン -->
+    <style>
+        body::after {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #00eaff, transparent);
+            box-shadow: 0 0 30px #00eaff, 0 0 60px rgba(0, 212, 255, 0.3);
+            animation: scanLine 4s ease-in-out infinite;
+            z-index: 100;
+            pointer-events: none;
+        }
+        @keyframes scanLine {
+            0% { top: -5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 105%; opacity: 0; }
+        }
+    </style>
+
     <script src="main.js"></script>
     <script>
-    // SYSTEM ONLINE時刻表示
-    function updateTime() {
-        const now = new Date();
-        const hh = String(now.getHours()).padStart(2, '0');
-        const mm = String(now.getMinutes()).padStart(2, '0');
-        const ss = String(now.getSeconds()).padStart(2, '0');
-        document.getElementById('statusTime').textContent = `${hh}:${mm}:${ss}`;
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
+        // === CLOCK ===
+        const clockEl = document.getElementById('clock');
+        function updateClock() {
+            const now = new Date();
+            clockEl.textContent = now.toTimeString().split(' ')[0];
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // === CHAR COUNTERS ===
+        const inputEl = document.getElementById('inputText');
+        const outputEl = document.getElementById('outputText');
+        const inputLenEl = document.getElementById('inputLen');
+        const outputLenEl = document.getElementById('outputLen');
+        inputEl.addEventListener('input', () => {
+            inputLenEl.textContent = inputEl.value.length + ' CHARS';
+        });
+
+        // === PARTICLES ===
+        (function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (4 + Math.random() * 8) + 's';
+                p.style.animationDelay = Math.random() * 10 + 's';
+                p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+                container.appendChild(p);
+            }
+        })();
+
+        // === PROCESSING ANIMATION ===
+        const overlay = document.getElementById('processingOverlay');
+        function showProcessing() {
+            return new Promise(resolve => {
+                overlay.classList.add('active');
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    resolve();
+                }, 400);
+            });
+        }
+
+        // === ERROR ===
+        const errorEl = document.getElementById('error');
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+        }
+        function hideError() {
+            errorEl.style.display = 'none';
+        }
+
+        // === DECRYPT ===
+        const processTimeEl = document.getElementById('processTime');
+        document.getElementById('decodeBtn').onclick = async function() {
+            hideError();
+            const input = inputEl.value.trim();
+            if (!input) {
+                showError('入力が空です。シーザー暗号文を入力してください。');
+                return;
+            }
+            const t0 = performance.now();
+            await showProcessing();
+            try {
+                // main.jsのcaesarAllDecodesを利用
+                const results = window.caesarAllDecodes ? window.caesarAllDecodes(input) : [];
+                if (!results.length) throw new Error('復号処理が利用できません');
+                const output = results.map(r => `[Shift ${r.shift}] ${r.decoded}`).join('\n\n');
+                outputEl.value = output;
+                outputLenEl.textContent = output.length + ' CHARS';
+                processTimeEl.textContent = 'PROCESSED IN ' + (performance.now() - t0).toFixed(1) + 'ms';
+            } catch (e) {
+                showError('復号に失敗しました。');
+            }
+        };
+
+        // === CLEAR ===
+        document.getElementById('clearBtn').onclick = function() {
+            inputEl.value = '';
+            outputEl.value = '';
+            inputLenEl.textContent = '0 CHARS';
+            outputLenEl.textContent = '0 CHARS';
+            processTimeEl.textContent = '';
+            hideError();
+        };
+
+        // === COPY ===
+        document.getElementById('copyBtn').onclick = function() {
+            const text = outputEl.value;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'COPIED ✓';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'COPY';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        };
+
+        // === SWAP ===
+        document.getElementById('swapBtn').onclick = function() {
+            const temp = inputEl.value;
+            inputEl.value = outputEl.value;
+            outputEl.value = temp;
+            inputLenEl.textContent = inputEl.value.length + ' CHARS';
+            outputLenEl.textContent = outputEl.value.length + ' CHARS';
+            hideError();
+        };
+
+        // === KEYBOARD SHORTCUT ===
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                document.getElementById('decodeBtn').click();
+            }
+        });
+
+        // === TYPEWRITER TITLE EFFECT ===
+        (function typewriterBoot() {
+            const sub = document.querySelector('.subtitle');
+            const text = sub.textContent.trim();
+            sub.textContent = '';
+            let i = 0;
+            const interval = setInterval(() => {
+                sub.textContent += text[i];
+                i++;
+                if (i >= text.length) clearInterval(interval);
+            }, 40);
+        })();
     </script>
 </body>
 </html>
