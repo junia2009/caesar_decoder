@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Decoder</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="rsa-frame">
+        <div class="rsa-header">
+            <span class="sys-ok">SYS.OK</span>
+            <span class="rsa-title">CAESAR DECODER</span>
+            <span class="rsa-version">v1.0.0</span>
+        </div>
+        <div class="rsa-circle"><div class="circle-inner"></div></div>
+        <div class="rsa-subtitle">PUBLIC KEY CRYPTOGRAPHY INTERFACE</div>
+        <div class="rsa-status-row">
+            <span class="rsa-status-dot"></span>
+            <span class="rsa-status">SYSTEM ONLINE</span>
+            <span class="rsa-clock" id="statusTime"></span>
+        </div>
+        <div class="rsa-section">
+            <div class="rsa-label">INPUT STREAM</div>
+            <textarea id="inputText" rows="4" placeholder="// 復号したいシーザー暗号文を入力..." class="rsa-textarea"></textarea>
+            <div class="rsa-btn-row">
+                <button id="decodeBtn" class="rsa-btn">DECRYPT</button>
+                <button id="clearBtn" class="rsa-btn">CLEAR</button>
+            </div>
+        </div>
+        <div class="rsa-section">
+            <div class="rsa-label">OUTPUT STREAM</div>
+            <textarea id="outputText" rows="7" readonly title="復号結果" placeholder="// 全シフト値の復号結果がここに表示されます" class="rsa-textarea"></textarea>
+            <div class="rsa-btn-row">
+                <button id="copyBtn" class="rsa-btn rsa-btn-yellow">COPY</button>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+    <script>
+    // SYSTEM ONLINE時刻表示
+    function updateTime() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('statusTime').textContent = `${hh}:${mm}:${ss}`;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+    </script>
+</body>
+</html>
