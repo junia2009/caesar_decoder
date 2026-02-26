@@ -1,102 +1,63 @@
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAESAR DECODER</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Floating particles -->
-    <div class="particles" id="particles"></div>
-
-    <div class="container">
-        <div class="hud-frame">
-            <div class="corner-bl"></div>
-            <div class="corner-br"></div>
-
-            <!-- HUD top deco -->
-            <div class="hud-deco-top">
-                <span>SYS.OK</span>
-                <span>Caesar Decoder</span>
-                <span>v2.0.0</span>
-            </div>
-
-            <!-- Processing overlay -->
-            <div class="processing-overlay" id="processingOverlay">
-                <div class="processing-ring"></div>
-            </div>
-
-            <!-- Header -->
-            <div class="header">
-                <div class="header-line">
-                    <span class="deco"></span>
-                    <div class="arc-reactor"></div>
-                    <span class="deco"></span>
-                </div>
-                <h1>CAESAR DECODER</h1>
-                <div class="subtitle">Shift Cipher Brute-force Interface</div>
-            </div>
-
-            <!-- Status Bar -->
-            <div class="status-bar">
-                <span><span class="status-dot"></span>SYSTEM ONLINE</span>
-                <span class="time" id="clock">00:00:00</span>
-            </div>
-
-
-            <!-- Input -->
-            <div class="crypto-section">
-                <label for="inputText"><span class="bracket">[</span> INPUT STREAM <span class="bracket">]</span></label>
-                <textarea id="inputText" class="crypto-textarea" placeholder="// 復号したいシーザー暗号文を入力..." spellcheck="false"></textarea>
-                <div class="byte-counter">
-                    <span id="inputLen">0 CHARS</span>
-                    <span>CTRL+ENTER → DECRYPT</span>
-                </div>
-            </div>
-
-            <!-- Swap -->
-            <div class="swap-row">
-                <button class="btn-swap center" id="swapBtn" title="入力と出力を入れ替え">⇅</button>
-            </div>
-
-            <!-- Output -->
-            <div class="crypto-section">
-                <label for="outputText"><span class="bracket">[</span> OUTPUT STREAM <span class="bracket">]</span></label>
-                <div class="output-wrapper">
-                                        <div class="output-flex">
-                                            <textarea id="outputText" class="crypto-textarea" readonly placeholder="// 全シフト値の復号結果がここに表示されます..." spellcheck="false"></textarea>
-                                            <button class="btn-copy mini" id="copyBtn">COPY</button>
-                                        </div>
-                </div>
-                <div class="byte-counter">
-                    <span id="outputLen">0 CHARS</span>
-                    <span id="processTime"></span>
-                </div>
-            </div>
-
-            <!-- Error -->
-            <div class="error" id="error"></div>
-
-            <!-- Buttons -->
-            <div class="btn-group">
-                <button class="btn btn-decode smart" id="decodeBtn">DECRYPT</button>
-                <button class="btn btn-clear smart" id="clearBtn">CLEAR</button>
-            </div>
-
-            <!-- Bottom deco -->
-            <div class="hud-deco-bottom">
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- スキャンライン -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+        :root {
+            --cyan: #00d4ff;
+            --cyan-dim: rgba(0, 212, 255, 0.3);
+            --cyan-glow: rgba(0, 212, 255, 0.15);
+            --orange: #ff6a00;
+            --orange-dim: rgba(255, 106, 0, 0.3);
+            --green: #00ff88;
+            --green-dim: rgba(0, 255, 136, 0.3);
+            --red: #ff4444;
+            --blue: #1e90ff;
+            --bg-dark: #0a0e17;
+            --panel-bg: rgba(0, 20, 40, 0.6);
+            --text: #c0dce8;
+            --text-bright: #e8f4f8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            min-height: 100vh;
+        }
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        body::-webkit-scrollbar { width: 6px; }
+        body::-webkit-scrollbar-track { background: rgba(0, 10, 20, 0.8); }
+        body::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
+        body::-webkit-scrollbar-thumb:hover { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridShift 20s linear infinite;
+        }
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
         body::after {
             content: '';
             position: fixed;
@@ -104,8 +65,8 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, transparent, #00eaff, transparent);
-            box-shadow: 0 0 30px #00eaff, 0 0 60px rgba(0, 212, 255, 0.3);
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            box-shadow: 0 0 30px var(--cyan), 0 0 60px var(--cyan-dim);
             animation: scanLine 4s ease-in-out infinite;
             z-index: 100;
             pointer-events: none;
@@ -116,9 +77,470 @@
             90% { opacity: 1; }
             100% { top: 105%; opacity: 0; }
         }
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--cyan);
+            animation: float linear infinite;
+            opacity: 0;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+        .container {
+            position: relative;
+            max-width: 600px;
+            margin: auto;
+            padding: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .hud-frame {
+            position: relative;
+            background: var(--panel-bg);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 4px;
+            padding: 36px 32px 28px;
+            box-shadow:
+                0 0 30px rgba(0, 212, 255, 0.05),
+                inset 0 0 30px rgba(0, 212, 255, 0.02);
+        }
+        .hud-frame::before,
+        .hud-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--cyan);
+            border-style: solid;
+        }
+        .hud-frame::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .hud-frame::after { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .corner-bl, .corner-br {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--cyan);
+            border-style: solid;
+        }
+        .corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .header-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        .header-line .deco {
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan));
+        }
+        .header-line .deco:last-child {
+            background: linear-gradient(90deg, var(--cyan), transparent);
+        }
+        .arc-reactor {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: reactorPulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        .arc-reactor::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            box-shadow: 0 0 12px var(--cyan), inset 0 0 8px var(--cyan-glow);
+        }
+        .arc-reactor::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            border: 1px dashed var(--cyan-dim);
+            animation: reactorSpin 6s linear infinite;
+        }
+        @keyframes reactorPulse {
+            0%, 100% { box-shadow: 0 0 15px var(--cyan-dim); }
+            50% { box-shadow: 0 0 30px var(--cyan-dim), 0 0 60px rgba(0, 212, 255, 0.1); }
+        }
+        @keyframes reactorSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            position: relative;
+        }
+        .subtitle {
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+            margin-bottom: 20px;
+            font-size: 0.7rem;
+            color: var(--cyan-dim);
+            letter-spacing: 1px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+            margin-right: 6px;
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .status-bar .time { color: var(--orange-dim); }
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0 14px;
+        }
+        .section-divider .line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
+        }
+        .section-divider .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--cyan-dim);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        label .bracket { color: var(--orange-dim); font-size: 0.85rem; }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 14px;
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            border-radius: 2px;
+            background: rgba(0, 10, 20, 0.7);
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-family: 'Share Tech Mono', monospace;
+            resize: vertical;
+            transition: all 0.3s;
+            line-height: 1.6;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1), inset 0 0 15px rgba(0, 212, 255, 0.03);
+        }
+        textarea::placeholder {
+            color: rgba(0, 212, 255, 0.35);
+            letter-spacing: 1px;
+        }
+        textarea::-webkit-scrollbar { width: 4px; }
+        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 2px; }
+        .swap-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            position: relative;
+        }
+        .swap-row::before,
+        .swap-row::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        }
+        .btn-swap {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--cyan-dim);
+            border-radius: 50%;
+            background: rgba(0, 20, 40, 0.8);
+            color: var(--cyan);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 12px;
+        }
+        .btn-swap:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan-dim);
+            transform: rotate(180deg);
+        }
+        .output-wrapper { position: relative; }
+        .btn-copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(0, 212, 255, 0.05);
+            color: var(--cyan-dim);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .btn-copy:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan-dim);
+        }
+        .btn-copy.copied {
+            border-color: #00ff88;
+            color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid;
+            border-radius: 2px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .btn:hover::before { opacity: 0.05; }
+        .btn-decrypt {
+            border-color: var(--cyan-dim);
+            color: var(--cyan);
+        }
+        .btn-decrypt:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px var(--cyan-dim), inset 0 0 20px rgba(0, 212, 255, 0.05);
+            text-shadow: 0 0 10px var(--cyan);
+        }
+        .btn-clear {
+            flex: 0.4;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .btn-clear:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .error {
+            background: rgba(255, 50, 50, 0.05);
+            border: 1px solid rgba(255, 50, 50, 0.2);
+            color: #ff4444;
+            padding: 10px 14px;
+            border-radius: 2px;
+            margin-top: 14px;
+            font-size: 0.8rem;
+            display: none;
+            letter-spacing: 1px;
+        }
+        .error::before {
+            content: '⚠ WARNING: ';
+            color: var(--orange);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+        }
+        .byte-counter {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(0, 212, 255, 0.2);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+        .processing-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 10, 20, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            border-radius: 4px;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .processing-overlay.active { display: flex; }
+        .processing-ring {
+            width: 50px;
+            height: 50px;
+            border: 2px solid transparent;
+            border-top-color: var(--cyan);
+            border-right-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            position: relative;
+        }
+        .processing-ring::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 2px solid transparent;
+            border-top-color: var(--orange);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite reverse;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 700px) {
+            .hud-frame { padding: 28px 18px 20px; }
+            h1 { font-size: 1.1rem; letter-spacing: 3px; }
+            .btn { font-size: 0.7rem; letter-spacing: 2px; padding: 10px 12px; }
+            .btn-group { flex-wrap: wrap; }
+            .btn-clear { flex: 1; }
+        }
     </style>
-
-    <script src="main.js"></script>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="container">
+        <div class="hud-frame">
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+            <div class="hud-deco-top">
+                <span>SYS.OK</span>
+                <span>CAESAR DECODER</span>
+                <span>v2.0.0</span>
+            </div>
+            <div class="processing-overlay" id="processingOverlay">
+                <div class="processing-ring"></div>
+            </div>
+            <div class="header">
+                <div class="header-line">
+                    <span class="deco"></span>
+                    <div class="arc-reactor"></div>
+                    <span class="deco"></span>
+                </div>
+                <h1>CAESAR DECODER</h1>
+                <div class="subtitle">Shift Cipher Brute-force Interface</div>
+            </div>
+            <div class="status-bar">
+                <span><span class="status-dot"></span>SYSTEM ONLINE</span>
+                <span class="time" id="clock">00:00:00</span>
+            </div>
+            <div class="section-divider">
+                <div class="line"></div>
+                <span class="section-title">🔓 Caesar Decrypt</span>
+                <div class="line"></div>
+            </div>
+            <label for="inputText"><span class="bracket">[</span> INPUT STREAM <span class="bracket">]</span></label>
+            <textarea id="inputText" placeholder="// 復号したいシーザー暗号文を入力..." spellcheck="false"></textarea>
+            <div class="byte-counter">
+                <span id="inputLen">0 CHARS</span>
+                <span>CTRL+ENTER → DECRYPT</span>
+            </div>
+            <div class="swap-row">
+                <button class="btn-swap" id="swapBtn" title="入力と出力を入れ替え">⇅</button>
+            </div>
+            <label for="outputText"><span class="bracket">[</span> OUTPUT STREAM <span class="bracket">]</span></label>
+            <div class="output-wrapper">
+                <textarea id="outputText" readonly placeholder="// 全シフト値の復号結果がここに表示されます..." spellcheck="false"></textarea>
+                <button class="btn-copy" id="copyBtn">COPY</button>
+            </div>
+            <div class="byte-counter">
+                <span id="outputLen">0 CHARS</span>
+                <span id="processTime"></span>
+            </div>
+            <div class="error" id="error"></div>
+            <div class="btn-group">
+                <button class="btn btn-decrypt" id="decodeBtn">DECRYPT</button>
+                <button class="btn btn-clear" id="clearBtn">CLEAR</button>
+            </div>
+            <div class="hud-deco-bottom">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
     <script>
         // === CLOCK ===
         const clockEl = document.getElementById('clock');
@@ -128,7 +550,6 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
-
         // === CHAR COUNTERS ===
         const inputEl = document.getElementById('inputText');
         const outputEl = document.getElementById('outputText');
@@ -137,7 +558,6 @@
         inputEl.addEventListener('input', () => {
             inputLenEl.textContent = inputEl.value.length + ' CHARS';
         });
-
         // === PARTICLES ===
         (function createParticles() {
             const container = document.getElementById('particles');
@@ -151,7 +571,6 @@
                 container.appendChild(p);
             }
         })();
-
         // === PROCESSING ANIMATION ===
         const overlay = document.getElementById('processingOverlay');
         function showProcessing() {
@@ -163,7 +582,6 @@
                 }, 400);
             });
         }
-
         // === ERROR ===
         const errorEl = document.getElementById('error');
         function showError(msg) {
@@ -173,9 +591,24 @@
         function hideError() {
             errorEl.style.display = 'none';
         }
-
         // === DECRYPT ===
         const processTimeEl = document.getElementById('processTime');
+        function caesarDecode(text, shift) {
+            return text.replace(/[a-zA-Z]/g, function(c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
+            });
+        }
+        function caesarAllDecodes(text) {
+            const results = [];
+            for (let shift = 1; shift <= 25; shift++) {
+                results.push({
+                    shift,
+                    decoded: caesarDecode(text, shift)
+                });
+            }
+            return results;
+        }
         document.getElementById('decodeBtn').onclick = async function() {
             hideError();
             const input = inputEl.value.trim();
@@ -186,8 +619,7 @@
             const t0 = performance.now();
             await showProcessing();
             try {
-                // main.jsのcaesarAllDecodesを利用
-                const results = window.caesarAllDecodes ? window.caesarAllDecodes(input) : [];
+                const results = caesarAllDecodes(input);
                 if (!results.length) throw new Error('復号処理が利用できません');
                 const output = results.map(r => `[Shift ${r.shift}] ${r.decoded}`).join('\n\n');
                 outputEl.value = output;
@@ -197,7 +629,6 @@
                 showError('復号に失敗しました。');
             }
         };
-
         // === CLEAR ===
         document.getElementById('clearBtn').onclick = function() {
             inputEl.value = '';
@@ -207,7 +638,6 @@
             processTimeEl.textContent = '';
             hideError();
         };
-
         // === COPY ===
         document.getElementById('copyBtn').onclick = function() {
             const text = outputEl.value;
@@ -222,7 +652,6 @@
                 }, 2000);
             });
         };
-
         // === SWAP ===
         document.getElementById('swapBtn').onclick = function() {
             const temp = inputEl.value;
@@ -232,7 +661,6 @@
             outputLenEl.textContent = outputEl.value.length + ' CHARS';
             hideError();
         };
-
         // === KEYBOARD SHORTCUT ===
         inputEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && e.ctrlKey) {
@@ -240,7 +668,6 @@
                 document.getElementById('decodeBtn').click();
             }
         });
-
         // === TYPEWRITER TITLE EFFECT ===
         (function typewriterBoot() {
             const sub = document.querySelector('.subtitle');
@@ -256,3 +683,4 @@
     </script>
 </body>
 </html>
+
